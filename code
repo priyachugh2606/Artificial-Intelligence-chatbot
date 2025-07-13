@@ -1,0 +1,80 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.HashMap;
+import java.util.Map;
+
+// NLP Preprocessing
+class NLPProcessor {
+    public static String cleanInput(String input) {
+        return input.toLowerCase().replaceAll("[^a-zA-Z ]", "").trim();
+    }
+}
+
+// Rule-based FAQ Engine
+class FAQEngine {
+    private final Map<String, String> faqResponses;
+
+    public FAQEngine() {
+        faqResponses = new HashMap<>();
+        faqResponses.put("hello", "Hi there!");
+        faqResponses.put("how are you", "I'm just code, but thanks for asking!");
+        faqResponses.put("what is your name", "I’m a Java AI Chatbot.");
+        faqResponses.put("what do you do", "I answer your questions and help you out.");
+    }
+
+    public String getAnswer(String question) {
+        question = NLPProcessor.cleanInput(question);
+        for (String key : faqResponses.keySet()) {
+            if (question.contains(key)) {
+                return faqResponses.get(key);
+            }
+        }
+        return "Sorry, I don’t know that yet. Please train me!";
+    }
+
+    public void train(String question, String answer) {
+        faqResponses.put(NLPProcessor.cleanInput(question), answer);
+    }
+}
+
+// GUI Application
+public class ChatGUI {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("AI Chatbot");
+        JTextArea chatArea = new JTextArea();
+        JTextField inputField = new JTextField();
+        JButton sendButton = new JButton("Send");
+        FAQEngine engine = new FAQEngine();
+
+        chatArea.setEditable(false);
+        chatArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+
+        frame.setSize(500, 600);
+        frame.setLayout(null);
+
+        scrollPane.setBounds(20, 20, 440, 450);
+        inputField.setBounds(20, 490, 340, 30);
+        sendButton.setBounds(370, 490, 90, 30);
+
+        frame.add(scrollPane);
+        frame.add(inputField);
+        frame.add(sendButton);
+
+        ActionListener sendAction = e -> {
+            String userInput = inputField.getText();
+            if (userInput.trim().isEmpty()) return;
+            String botReply = engine.getAnswer(userInput);
+            chatArea.append("You: " + userInput + "\n");
+            chatArea.append("Bot: " + botReply + "\n\n");
+            inputField.setText("");
+        };
+
+        sendButton.addActionListener(sendAction);
+        inputField.addActionListener(sendAction);
+
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    }
+}
